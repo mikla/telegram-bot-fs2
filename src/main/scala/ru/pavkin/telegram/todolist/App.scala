@@ -1,13 +1,13 @@
 package ru.pavkin.telegram.todolist
 
 import cats.effect.{ExitCode, IO, IOApp}
-import fs2.Stream
+import fs2.{Stream => Fs2Stream}
 
 object App extends IOApp {
 
-  def stream: Stream[IO, ExitCode] =
+  def stream: Fs2Stream[IO, ExitCode] =
     for {
-      token <- Stream.eval(IO(System.getenv("TODOLIST_BOT_TOKEN")))
+      token <- Fs2Stream.eval(IO(System.getenv("TODOLIST_BOT_TOKEN")))
       exitCode <-
         new TodoListBotProcess[IO](token).run.last.map(_ => ExitCode.Success)
     } yield exitCode

@@ -1,7 +1,7 @@
 package ru.pavkin.telegram.todolist
 
 import cats.Functor
-import cats.effect.concurrent.Ref
+import cats.effect.kernel.Ref
 import cats.implicits._
 import ru.pavkin.telegram.api.ChatId
 

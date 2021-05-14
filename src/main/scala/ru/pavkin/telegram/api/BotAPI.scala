@@ -4,8 +4,13 @@ import cats.effect.Sync
 import cats.implicits._
 import fs2.{Stream => Fs2Stream}
 import org.http4s.client.Client
-import org.http4s.implicits.http4sLiteralsSyntax
 import org.http4s.{EntityDecoder, Uri}
+import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
+//import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
+//import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
+//import org.http4s.FormDataDecoder.formEntityDecoder
+//import org.http4s.circe.CirceSensitiveDataEntityDecoder.circeEntityDecoder
+
 import org.typelevel.log4cats.Logger
 import ru.pavkin.telegram.api.dto.{BotResponse, BotUpdate}
 
@@ -30,7 +35,7 @@ trait BotAPI[F[_], S[_]] {
   def pollUpdates(fromOffset: Offset): S[BotUpdate]
 }
 
-trait StreamingBotAPI[F[_]] extends BotAPI[F, Fs2Stream[F, [X] =>> F[X]]]
+trait StreamingBotAPI[F[_]] extends BotAPI[F, [X] =>> Fs2Stream[F, X]]
 
 /**
   * Single bot API instance with http4s client.
@@ -48,7 +53,7 @@ class Http4SBotAPI[F[_]](
   F: Sync[F],
   D: EntityDecoder[F, BotResponse[List[BotUpdate]]]) extends StreamingBotAPI[F] {
 
-  private val botApiUri: Uri = uri"https://api.telegram.org" / s"bot$token"
+  private val botApiUri: Uri = Uri.unsafeFromString("https://api.telegram.org") / s"bot$token"
 
   def sendMessage(chatId: ChatId, message: String): F[Unit] = {
 
@@ -62,10 +67,10 @@ class Http4SBotAPI[F[_]](
     client.expect[Unit](uri) // run the http request and ignore the result body.
   }
 
-  def pollUpdates(fromOffset: Offset): Stream[F, BotUpdate] =
-    Stream(()).repeat.covary[F]
+  def pollUpdates(fromOffset: Offset): Fs2Stream[F, BotUpdate] =
+    Fs2Stream(()).repeat.covary[F]
       .evalMapAccumulate(fromOffset) { case (offset, _) => requestUpdates(offset) }
-      .flatMap { case (_, response) => Stream.emits(response.result) }
+      .flatMap { case (_, response) => Fs2Stream.emits(response.result) }
 
   private def requestUpdates(offset: Offset): F[(Offset, BotResponse[List[BotUpdate]])] = {
 
