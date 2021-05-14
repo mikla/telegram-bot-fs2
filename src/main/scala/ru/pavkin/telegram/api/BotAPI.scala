@@ -2,8 +2,9 @@ package ru.pavkin.telegram.api
 
 import cats.effect.Sync
 import cats.implicits._
-import fs2.Stream
+import fs2.{Stream => Fs2Stream}
 import org.http4s.client.Client
+import org.http4s.implicits.http4sLiteralsSyntax
 import org.http4s.{EntityDecoder, Uri}
 import org.typelevel.log4cats.Logger
 import ru.pavkin.telegram.api.dto.{BotResponse, BotUpdate}
@@ -29,7 +30,7 @@ trait BotAPI[F[_], S[_]] {
   def pollUpdates(fromOffset: Offset): S[BotUpdate]
 }
 
-trait StreamingBotAPI[F[_]] extends BotAPI[F, Stream[F, *]]
+trait StreamingBotAPI[F[_]] extends BotAPI[F, Fs2Stream[F, [X] =>> F[X]]]
 
 /**
   * Single bot API instance with http4s client.
@@ -47,7 +48,7 @@ class Http4SBotAPI[F[_]](
   F: Sync[F],
   D: EntityDecoder[F, BotResponse[List[BotUpdate]]]) extends StreamingBotAPI[F] {
 
-  private val botApiUri: Uri = Uri.uri("https://api.telegram.org") / s"bot$token"
+  private val botApiUri: Uri = uri"https://api.telegram.org" / s"bot$token"
 
   def sendMessage(chatId: ChatId, message: String): F[Unit] = {
 
