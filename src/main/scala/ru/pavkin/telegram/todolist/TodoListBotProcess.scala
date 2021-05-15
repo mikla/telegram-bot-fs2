@@ -1,7 +1,7 @@
 package ru.pavkin.telegram.todolist
 
-import cats.effect.std.Dispatcher
-import cats.effect.kernel.Ref
+import cats.effect.Sync
+import cats.effect.kernel.{Async, Ref}
 import cats.implicits._
 import fs2.Stream
 import io.circe.generic.auto._
@@ -19,10 +19,13 @@ import scala.concurrent.ExecutionContext
   *
   * @param token telegram bot token
   */
-class TodoListBotProcess[F[_]](token: String)(implicit F: Dispatcher[F]) {
+class TodoListBotProcess[F[_]](token: String)(
+  implicit
+  A: Async[F],
+  S: Sync[F]) {
 
-  // implicit val decoder: EntityDecoder[F, BotResponse[List[BotUpdate]]] =
-    // jsonOf[F, BotResponse[List[BotUpdate]]]
+  implicit val decoder: EntityDecoder[F, BotResponse[List[BotUpdate]]] =
+    jsonOf[F, BotResponse[List[BotUpdate]]]
 
   def run: Stream[F, Unit] =
     BlazeClientBuilder[F](ExecutionContext.global).stream.flatMap { client =>
@@ -32,8 +35,8 @@ class TodoListBotProcess[F[_]](token: String)(implicit F: Dispatcher[F]) {
           Ref
             .of(Map.empty[ChatId, List[Item]])
             .map(new InMemoryTodoListStorage(_))
-        botAPI <- F.delay(new Http4SBotAPI(token, client, logger))
-        todoListBot <- F.delay(new TodoListBot(botAPI, storage, logger))
+        botAPI <- S.delay(new Http4SBotAPI(token, client, logger))
+        todoListBot <- S.delay(new TodoListBot(botAPI, storage, logger))
       } yield todoListBot.launch
 
       Stream.force(streamF)
