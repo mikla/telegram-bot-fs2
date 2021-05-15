@@ -5,11 +5,6 @@ import cats.implicits._
 import fs2.{Stream => Fs2Stream}
 import org.http4s.client.Client
 import org.http4s.{EntityDecoder, Uri}
-import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
-//import org.http4s.circe.CirceEntityDecoder.circeEntityDecoder
-//import org.http4s.circe.CirceEntityCodec.circeEntityDecoder
-//import org.http4s.FormDataDecoder.formEntityDecoder
-//import org.http4s.circe.CirceSensitiveDataEntityDecoder.circeEntityDecoder
 
 import org.typelevel.log4cats.Logger
 import ru.pavkin.telegram.api.dto.{BotResponse, BotUpdate}
