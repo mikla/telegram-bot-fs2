@@ -1,9 +1,9 @@
-val http4sVersion = "0.21.22"
+val http4sVersion = "1.0.0-M21"
 val specs2Version = "4.11.0"
-val log4CatsVersion = "1.3.0"
+val log4CatsVersion = "2.1.0"
 val slf4jVersion = "1.7.30"
 val kindProjectorVersion = "0.11.3"
-val circeVersion = "0.12.3"
+val circeVersion = "0.13.0"
 
 lazy val root = (project in file("."))
   .settings(

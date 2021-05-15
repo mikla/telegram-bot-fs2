@@ -45,7 +45,8 @@ class Http4SBotAPI[F[_]](
   logger: Logger[F])(
   implicit
   F: Sync[F],
-  D: EntityDecoder[F, BotResponse[List[BotUpdate]]]) extends StreamingBotAPI[F] {
+  D: EntityDecoder[F, BotResponse[List[BotUpdate]]],
+  U: EntityDecoder[F, Unit]) extends StreamingBotAPI[F] {
 
   private val botApiUri: Uri = Uri.uri("https://api.telegram.org") / s"bot$token"
 
