@@ -2,6 +2,8 @@
 
 Example purely functional telegram bot implementation with FS2 and http4s client.
 
+Uses Scala 3 and cats-effect 3
+
 ## Launching the bot
 
 1. Create a new bot for yourself with @BotFather: https://core.telegram.org/bots#6-botfather
